@@ -1,12 +1,12 @@
 import sys
 from PyQt5.QtWidgets import (
-    QApplication, 
-    QWidget, 
-    QVBoxLayout, 
+    QApplication,
+    QFileDialog,
+    QLabel,
     QPushButton,
-    QLabel, 
-    QTextEdit, 
-    QFileDialog
+    QTextEdit,
+    QVBoxLayout,
+    QWidget
 )
 
 from function import *
