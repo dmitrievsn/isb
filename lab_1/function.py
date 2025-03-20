@@ -43,7 +43,7 @@ def write_txt_file(data: str,file_path: str)->None:
 
 def encryption(data: str, key: dict[str, str]) -> str:
     """
-    A function for encrypting text
+    A function for text encryption by substitution method
     :param data: data for encryption
     :param key: encryption key
     :return: encrypted text
