@@ -38,11 +38,15 @@ class EncryptionApp(QWidget):
         self.load_key_button.clicked.connect(self.load_key)
         layout.addWidget(self.load_key_button)
 
+        self.decrypt_button = QPushButton('Decrypt')
+        self.decrypt_button.clicked.connect(self.decrypt_text)
+        layout.addWidget(self.decrypt_button)
+
         self.encrypt_button = QPushButton('Encrypt')
         self.encrypt_button.clicked.connect(self.encrypt_text)
         layout.addWidget(self.encrypt_button)
 
-        self.save_encrypted_button = QPushButton('Save Encrypted Text')
+        self.save_encrypted_button = QPushButton('Save Text')
         self.save_encrypted_button.clicked.connect(self.save_encrypted_text)
         layout.addWidget(self.save_encrypted_button)
 
@@ -68,13 +72,22 @@ class EncryptionApp(QWidget):
             print("Key loaded successfully.")
 
 
-    def encrypt_text(self):
+    def decrypt_text(self):
         if hasattr(self, 'text') and hasattr(self, 'key'):
-            encrypted_text = encryption(self.text, self.key)
+            encrypted_text = decryption(self.text, self.key)
             self.text_edit.setPlainText(encrypted_text)
             print("Text encrypted successfully.")
         else:
             print("Please load text and key first.")
+
+
+    def encrypt_text(self):
+        if hasattr(self, 'text'):
+            encrypted_text = caesar_cipher(self.text)
+            self.text_edit.setPlainText(encrypted_text)
+            print("Text encrypted successfully.")
+        else:
+            print("Please load text first.")
 
 
     def save_encrypted_text(self):
