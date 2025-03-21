@@ -1,5 +1,6 @@
 import json
 
+from constant import alphabet
 
 def read_key(key_path)->dict[str:str]:
     """
@@ -41,12 +42,12 @@ def write_txt_file(data: str,file_path: str)->None:
         print(f"Error: {e}")
 
 
-def encryption(data: str, key: dict[str, str]) -> str:
+def decryption(data: str, key: dict[str, str]) -> str:
     """
-    A function for text encryption by substitution method
-    :param data: data for encryption
-    :param key: encryption key
-    :return: encrypted text
+    A function for text decryption
+    :param data: data for decryption
+    :param key: decryption key
+    :return: decrypted text
     """
     if data is None or key is None:
         return "There is no text or encryption key!"
@@ -56,6 +57,23 @@ def encryption(data: str, key: dict[str, str]) -> str:
             result += key[lit]
         else:
             result += lit
+    return result
+
+
+def caesar_cipher(data:str) -> str:
+    """
+    Encrypts the specified text using the Caesar cipher
+    :param data: data for encryption
+    :return: encrypted text
+    """
+    result = ""
+    for char in data.lower():
+        if char in alphabet:
+            base = ord('а')
+            encrypted_char = chr((ord(char) - base + 150) % 32 + base)
+            result += encrypted_char
+        else:
+            result += char
     return result
 
 
