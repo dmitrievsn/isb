@@ -1,6 +1,9 @@
 import json
 
-from constant import alphabet
+from constant import (
+    ALPHABET,
+    CONST
+)
 
 def read_key(key_path)->dict[str:str]:
     """
@@ -68,9 +71,9 @@ def caesar_cipher(data:str) -> str:
     """
     result = ""
     for char in data.lower():
-        if char in alphabet:
+        if char in ALPHABET:
             base = ord('а')
-            encrypted_char = chr((ord(char) - base + 150) % 32 + base)
+            encrypted_char = chr((ord(char) - base + CONST) % len(ALPHABET) + base)
             result += encrypted_char
         else:
             result += char
