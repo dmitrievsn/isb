@@ -41,7 +41,7 @@ class BitSequenceAnalyzer(QWidget):
         self.save_button.clicked.connect(self.save_results)
         layout.addWidget(self.save_button)
 
-        self.result_label = QLabel("", self)  # Инициализация result_label
+        self.result_label = QLabel("", self)
         self.result_label.setAlignment(Qt.AlignTop)
         layout.addWidget(self.result_label)
 
