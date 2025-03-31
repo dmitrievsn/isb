@@ -74,3 +74,17 @@ def test_identical_consecutive_bits(statistic:tuple) -> float:
     for i in range(0, 4):
         chi_square += ((statistic[i] - 16 * P[i]) ** 2) / (16 * P[i])
     return gammainc(3 / 2, chi_square / 2)
+
+
+def write_txt_file(data: str,file_path: str)->None:
+    """
+    A function for writing text to a file
+    :param data: data to enter into the file
+    :param file_path: the path to the file to save the data
+    :return: None
+    """
+    try:
+        with open(file_path, 'w', encoding='utf-8') as file:
+            file.write(str(data))
+    except Exception as e:
+        print(f"Error: {e}")
