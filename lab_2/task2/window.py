@@ -4,12 +4,12 @@ from PyQt5.QtWidgets import (
     QApplication,
     QFileDialog,
     QLabel,
-    QMessageBox,
     QPushButton,
     QTextEdit,
     QVBoxLayout,
-    QWidget
+    QWidget,
 )
+from PyQt5.QtCore import Qt
 
 from NIST_tests import *
 
@@ -41,6 +41,10 @@ class BitSequenceAnalyzer(QWidget):
         self.save_button.clicked.connect(self.save_results)
         layout.addWidget(self.save_button)
 
+        self.result_label = QLabel("", self)  # Инициализация result_label
+        self.result_label.setAlignment(Qt.AlignTop)
+        layout.addWidget(self.result_label)
+
         self.setLayout(layout)
 
 
@@ -54,7 +58,7 @@ class BitSequenceAnalyzer(QWidget):
     def analyze_sequence(self):
         sequence = self.text_edit.toPlainText().strip()
         if not sequence:
-            QMessageBox.warning(self, "Warning", "Please upload the bit sequence.")
+            self.result_label.setText("Please download the bit sequence.")
             return
         frequency_p_value = frequency_test(sequence)
         consecutive_bits_p_value = consecutive_bits_test(sequence)
@@ -66,18 +70,18 @@ class BitSequenceAnalyzer(QWidget):
             f"Test for the longest sequence of units in a block: {identical_bits_p_value:.4f}"
         )
         self.results_to_save = results
-        QMessageBox.information(self, "Analysis Complete", "The analysis has been completed successfully.")
 
 
     def save_results(self):
-        if hasattr(self, 'results_to_save') and not(self.results_to_save is None):
+        if hasattr(self, 'results_to_save'):
             file_path, _ = QFileDialog.getSaveFileName(self, "Save the results", "", "Text Files (*.txt);;All Files (*)")
             if file_path:
                 write_txt_file(self.results_to_save, file_path)
-                QMessageBox.information(self, "Success", f"The results were successfully saved in {file_path}")
+                self.result_label.setText(f"The results were successfully saved in {file_path}")
                 self.results_to_save = None
+                self.result_label.clear()
         else:
-            QMessageBox.warning(self, "Warning", "First, perform the analysis.")
+            self.result_label.setText("First, perform the analysis.")
 
 
 if __name__ == "__main__":
