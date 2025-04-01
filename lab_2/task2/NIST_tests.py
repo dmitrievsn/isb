@@ -2,6 +2,8 @@ import math
 
 from scipy.special import gammainc
 
+from constant import P
+
 
 def read_txt_file(file_path: str) -> str:
     """
@@ -69,7 +71,6 @@ def test_identical_consecutive_bits(statistic:tuple) -> float:
     :param statistic: statistic
     :return: P-value
     """
-    P = [0.2148, 0.3672, 0.2305, 0.1875]
     chi_square = 0
     for i in range(0, 4):
         chi_square += ((statistic[i] - 16 * P[i]) ** 2) / (16 * P[i])
