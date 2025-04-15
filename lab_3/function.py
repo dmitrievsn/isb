@@ -167,5 +167,5 @@ def decrypt_symmetric_key(ciphertext: bytes, private_key: rsa.RSAPrivateKey) -> 
     :param private_key:RSA private key for decryption
     :return:decrypted symmetric key
     """
-    symmetric_key = private_key.decrypt(ciphertext)
+    symmetric_key = private_key.decrypt(ciphertext,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
     return symmetric_key
