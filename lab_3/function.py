@@ -1,7 +1,7 @@
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa,padding
+from cryptography.hazmat.primitives import serialization, hashes
 import os
 
 
@@ -140,3 +140,21 @@ def load_public_key(filename: str) -> rsa.RSAPublicKey:
             backend=default_backend()
         )
     return public_key
+
+
+def encrypt_symmetric_key(symmetric_key: bytes, public_key: rsa.RSAPublicKey) -> bytes:
+    """
+    Encrypts the symmetric key using the RSA public key
+    :param symmetric_key:symmetric encryption key
+    :param public_key:RSA public key for encryption
+    :return: encrypted symmetric key
+    """
+    ciphertext = public_key.encrypt(
+        symmetric_key,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
+    return ciphertext
