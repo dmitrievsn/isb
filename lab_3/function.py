@@ -111,3 +111,32 @@ def serialize_public_key(public_key: rsa.RSAPublicKey, filename: str) -> None:
             encoding=serialization.Encoding.PEM,
             format=serialization.PublicFormat.SubjectPublicKeyInfo
         ))
+
+
+def load_private_key(filename: str) -> rsa.RSAPrivateKey:
+    """
+    Downloads the RSA private key from a file
+    :param filename:the file name for uploading the key
+    :return:the RSA private key
+    """
+    with open(filename, 'rb') as f:
+        private_key = serialization.load_pem_private_key(
+            f.read(),
+            password=None,
+            backend=default_backend()
+        )
+    return private_key
+
+
+def load_public_key(filename: str) -> rsa.RSAPublicKey:
+    """
+    Downloads the RSA public key from a file
+    :param filename:the file name for uploading the key
+    :return:the RSA public key
+    """
+    with open(filename, 'rb') as f:
+        public_key = serialization.load_pem_public_key(
+            f.read(),
+            backend=default_backend()
+        )
+    return public_key
