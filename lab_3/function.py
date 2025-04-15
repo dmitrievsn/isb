@@ -158,3 +158,14 @@ def encrypt_symmetric_key(symmetric_key: bytes, public_key: rsa.RSAPublicKey) ->
         )
     )
     return ciphertext
+
+
+def decrypt_symmetric_key(ciphertext: bytes, private_key: rsa.RSAPrivateKey) -> bytes:
+    """
+    Decrypts a symmetric key using an RSA private key
+    :param ciphertext:encrypted symmetric key
+    :param private_key:RSA private key for decryption
+    :return:decrypted symmetric key
+    """
+    symmetric_key = private_key.decrypt(ciphertext)
+    return symmetric_key
