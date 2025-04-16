@@ -1,3 +1,0 @@
-Frequency bitwise test: 0.3768
-A test for identical consecutive bits: 0.5465
-Test for the longest sequence of units in a block: 0.0713
