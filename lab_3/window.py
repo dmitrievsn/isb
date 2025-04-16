@@ -99,10 +99,10 @@ class HybridCryptosystem(QWidget):
 
     def generate_key_sm4(self) -> None:
         try:
-            key_sm4 = generate_sm4_key()
-            filename, _ = QFileDialog.getSaveFileName(self, "Save Private Key", "", "Text Files (*.txt);;All Files (*)")
+            self.key_sm4 = generate_sm4_key()
+            filename, _ = QFileDialog.getSaveFileName(self, "Save SM4 Key", "", "Text Files (*.txt);;All Files (*)")
             if filename:
-                write_txt_file(key_sm4, filename)
+                write_txt_file(self.key_sm4, filename)
             QMessageBox.information(self, "Success", "SM4 key generated and saved successfully.")
         except Exception as e:
             QMessageBox.warning(self, "Error", f"Failed to generate SM4 key: {str(e)}")

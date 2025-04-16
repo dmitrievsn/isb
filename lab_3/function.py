@@ -73,7 +73,7 @@ def write_txt_file(data: bytes, file_path: str) -> None:
     :return: None
     """
     try:
-        with open(file_path, 'wb', encoding='utf-16') as file:
+        with open(file_path, 'wb') as file:
             file.write(data)
     except Exception as e:
         print(f"Error: {e}")
