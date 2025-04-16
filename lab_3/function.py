@@ -4,6 +4,13 @@ from cryptography.hazmat.primitives.asymmetric import rsa,padding
 from cryptography.hazmat.primitives import serialization, hashes
 import os
 
+def generate_sm4_key()->bytes:
+    """
+    Generates a random key for SM4 encryption
+    :return:random key
+    """
+    return os.urandom(16)
+
 
 def sm4_encrypt(key: bytes, text: bytes) -> bytes:
     """
