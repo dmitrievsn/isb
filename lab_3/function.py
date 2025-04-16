@@ -1,10 +1,12 @@
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import rsa,padding
-from cryptography.hazmat.primitives import serialization, hashes
 import os
 
-def generate_sm4_key()->bytes:
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import serialization, hashes
+from cryptography.hazmat.backends import default_backend
+
+
+def generate_sm4_key() -> bytes:
     """
     Generates a random key for SM4 encryption
     :return:random key
@@ -77,7 +79,7 @@ def write_txt_file(data: bytes, file_path: str) -> None:
         print(f"Error: {e}")
 
 
-def generate_rsa_keys()->tuple:
+def generate_rsa_keys() -> tuple:
     """
     Generates an RSA key pair (private and public)
     :return:RSA private and public keys
@@ -174,5 +176,6 @@ def decrypt_symmetric_key(ciphertext: bytes, private_key: rsa.RSAPrivateKey) -> 
     :param private_key:RSA private key for decryption
     :return:decrypted symmetric key
     """
-    symmetric_key = private_key.decrypt(ciphertext,padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+    symmetric_key = private_key.decrypt(ciphertext, padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                                                                 algorithm=hashes.SHA256(), label=None))
     return symmetric_key
