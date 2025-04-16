@@ -83,6 +83,13 @@ class HybridCryptosystem(QWidget):
 
         self.setLayout(layout)
         self.encrypted_key = None
+        self.decrypted_key = None
+        self.key_sm4 = None
+        self.public_key = None
+        self.private_key = None
+        self.decrypted_text = None
+        self.encrypted_text = None
+        self.text = None
 
 
     def load_txt(self) -> None:
@@ -107,7 +114,7 @@ class HybridCryptosystem(QWidget):
 
 
     def load_key_sm4(self) -> None:
-        file_path, _ = QFileDialog.getOpenFileName(self, "Open File", "", "Text Files (*.txt);;All Files (*)")
+        file_path, _ = QFileDialog.getOpenFileName(self, "Open File With SM4 Key", "", "Text Files (*.txt);;All Files (*)")
         if file_path:
             try:
                 self.key_sm4 = read_txt_file(file_path)
@@ -128,23 +135,17 @@ class HybridCryptosystem(QWidget):
 
 
     def save_encrypt_text(self) -> None:
-        file_path, _ = QFileDialog.getSaveFileName(self, "Save Encrypted Key", "", "Text Files (*.txt);;All Files (*)")
-        if file_path and hasattr(self, 'encrypted_text'):
-            try:
-                write_txt_file(self.encrypted_text, file_path)
-                QMessageBox.information(self, "Success", "Encrypted text saved successfully.")
-            except Exception as e:
-                QMessageBox.warning(self, "Error", f"Failed to save encrypted text: {str(e)}")
-
-
-    def save_decrypt_text(self) -> None:
-        file_path, _ = QFileDialog.getSaveFileName(self, "Save Encrypted Key", "", "Text Files (*.txt);;All Files (*)")
-        if file_path and hasattr(self, 'decrypted_text'):
-            try:
-                write_txt_file(self.decrypted_text, file_path)
-                QMessageBox.information(self, "Success", "Decrypted text saved successfully.")
-            except Exception as e:
-                QMessageBox.warning(self, "Error", f"Failed to save decrypted text: {str(e)}")
+        if not(self.encrypted_text is None):
+            file_path, _ = QFileDialog.getSaveFileName(self, "Save Encrypted Key", "", "Text Files (*.txt);;All Files (*)")
+            if file_path:
+                try:
+                    write_txt_file(self.encrypted_text, file_path)
+                    QMessageBox.information(self, "Success", "Encrypted text saved successfully.")
+                except Exception as e:
+                    QMessageBox.warning(self, "Error", f"Failed to save encrypted text: {str(e)}")
+        else:
+            QMessageBox.warning(self, "Warning", "Please encrypt text.")
+            return
 
 
     def decrypt_text(self) -> None:
@@ -156,6 +157,20 @@ class HybridCryptosystem(QWidget):
             QMessageBox.information(self, "Success", "Text decrypted successfully.")
         except Exception as e:
             QMessageBox.warning(self, "Error", f"Failed to decrypt text: {str(e)}")
+
+
+    def save_decrypt_text(self) -> None:
+        if not (self.decrypted_text is None):
+            file_path, _ = QFileDialog.getSaveFileName(self, "Save Encrypted Key", "", "Text Files (*.txt);;All Files (*)")
+            if file_path:
+                try:
+                    write_txt_file(self.decrypted_text, file_path)
+                    QMessageBox.information(self, "Success", "Decrypted text saved successfully.")
+                except Exception as e:
+                    QMessageBox.warning(self, "Error", f"Failed to save decrypted text: {str(e)}")
+        else:
+            QMessageBox.warning(self, "Warning", "Please decrypt text.")
+            return
 
 
     def generate_rsa_keys(self) -> None:
@@ -205,34 +220,46 @@ class HybridCryptosystem(QWidget):
 
 
     def save_encrypted_key(self) -> None:
-        file_path, _ = QFileDialog.getSaveFileName(self, "Save Encrypted Key", "", "Text Files (*.txt);;All Files (*)")
-        if file_path and hasattr(self, 'encrypted_key'):
-            try:
-                write_txt_file(self.encrypted_key,file_path)
-                QMessageBox.information(self, "Success", "Encrypted symmetric key saved successfully.")
-            except Exception as e:
-                QMessageBox.warning(self, "Error", f"Failed to save encrypted key: {str(e)}")
-
-
-    def save_decrypted_key(self) -> None:
-        file_path, _ = QFileDialog.getSaveFileName(self, "Save Encrypted Key", "", "Text Files (*.txt);;All Files (*)")
-        if file_path and hasattr(self, 'decrypted_key'):
-            try:
-                write_txt_file(self.decrypted_key,file_path)
-                QMessageBox.information(self, "Success", "Encrypted symmetric key saved successfully.")
-            except Exception as e:
-                QMessageBox.warning(self, "Error", f"Failed to save encrypted key: {str(e)}")
+        if not(self.encrypted_key is None):
+            file_path, _ = QFileDialog.getSaveFileName(self, "Save Encrypted Key", "", "Text Files (*.txt);;All Files (*)")
+            if file_path:
+                try:
+                    write_txt_file(self.encrypted_key,file_path)
+                    QMessageBox.information(self, "Success", "Encrypted symmetric key saved successfully.")
+                except Exception as e:
+                    QMessageBox.warning(self, "Error", f"Failed to save encrypted key: {str(e)}")
+        else:
+            QMessageBox.warning(self, "Warning", "Please encrypt symmetric key.")
+            return
 
 
     def decrypt_symmetric_key(self) -> None:
-        file_path, _ = QFileDialog.getOpenFileName(self, "Open Private Key File", "", "Text Files (*.txt);;All Files (*)")
-        if file_path and not(self.encrypted_key is None):
-            try:
-                private_key = load_private_key(file_path)
-                self.decrypted_key = decrypt_symmetric_key(self.encrypted_key, private_key)
-                QMessageBox.information(self, "Success", f"Decrypted symmetric key saved successfully")
-            except Exception as e:
-                QMessageBox.warning(self, "Error", f"Failed to decrypt symmetric key: {str(e)}")
+        if not(self.encrypted_key is None):
+            file_path, _ = QFileDialog.getOpenFileName(self, "Open Private Key File", "", "Text Files (*.txt);;All Files (*)")
+            if file_path:
+                try:
+                    private_key = load_private_key(file_path)
+                    self.decrypted_key = decrypt_symmetric_key(self.encrypted_key, private_key)
+                    QMessageBox.information(self, "Success", f"Decrypted symmetric key saved successfully")
+                except Exception as e:
+                    QMessageBox.warning(self, "Error", f"Failed to decrypt symmetric key: {str(e)}")
+        else:
+            QMessageBox.warning(self, "Warning", "Please load encrypt symmetric key.")
+            return
+
+
+    def save_decrypted_key(self) -> None:
+        if not(self.decrypted_key is None):
+            file_path, _ = QFileDialog.getSaveFileName(self, "Save Decrypted Key", "", "Text Files (*.txt);;All Files (*)")
+            if file_path:
+                try:
+                    write_txt_file(self.decrypted_key,file_path)
+                    QMessageBox.information(self, "Success", "Decrypted symmetric key saved successfully.")
+                except Exception as e:
+                    QMessageBox.warning(self, "Error", f"Failed to save decrypted key: {str(e)}")
+        else:
+            QMessageBox.warning(self, "Warning", "Please decrypt symmetric key.")
+            return
 
 
 if __name__ == "__main__":
