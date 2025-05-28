@@ -8,11 +8,11 @@ from tqdm import tqdm
 import time
 import matplotlib.pyplot as plt
 import unittest
+import argparse
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QWidget,
-                            QPushButton, QLabel, QLineEdit, QTextEdit, QProgressBar,
-                            QSpinBox, QFormLayout, QMessageBox)
+                             QPushButton, QLabel, QLineEdit, QTextEdit, QProgressBar,
+                             QSpinBox, QFormLayout, QMessageBox)
 from PyQt5.QtCore import QThread, pyqtSignal
-
 
 
 class CardNumberFinder:
@@ -28,9 +28,9 @@ class CardNumberFinder:
         matching = []
         total_possibilities = 10 ** self.middle_len
         with tqdm(product('0123456789', repeat=self.middle_len),
-                 total=total_possibilities,
-                 desc=f"Processing BIN {bin_prefix}",
-                 leave=False) as pbar:
+                  total=total_possibilities,
+                  desc=f"Processing BIN {bin_prefix}",
+                  leave=False) as pbar:
             for middle in pbar:
                 card = bin_prefix + ''.join(middle) + self.last_four
                 if self.check_hash(card):
@@ -96,7 +96,6 @@ def benchmark(hash_value: str, last_four: str, bins: List[str], middle_len: int 
                 print(f"{i}. {card[:6]}******{card[-4:]}")
             finder.save_to_json(matching_cards)
             print(f"Results saved to {finder.path}")
-            break
 
     return process_counts, times
 
@@ -121,6 +120,7 @@ def plot_results(process_counts, times):
     plt.show()
 
     return optimal_processes
+
 
 class TestCardNumberFinder(unittest.TestCase):
     def setUp(self):
@@ -267,3 +267,56 @@ class CardFinderGUI(QMainWindow):
         else:
             self.output_area.append("\nNo matching cards found.")
         self.progress_bar.setValue(100)
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Card Number Finder")
+    parser.add_argument("--hash", help="Target hash value", default=constants.HASH_VALUE)
+    parser.add_argument("--last4", help="Last 4 digits of card", default=constants.LAST_4_CHARACTERS_CARD)
+    parser.add_argument("--bins", help="Comma separated BINs",
+                        default=",".join(constants.ALFABANK_VISA_DEBIT_BINS))
+    parser.add_argument("--middle", type=int, help="Middle digits length",
+                        default=constants.MIDDLE_LENGTH)
+    parser.add_argument("--processes", type=int,
+                        help="Number of processes", default=multiprocessing.cpu_count())
+    parser.add_argument("--benchmark", action="store_true", help="Run benchmark")
+    parser.add_argument("--gui", action="store_true", help="Launch GUI")
+    parser.add_argument("--test", action="store_true", help="Run unit tests")
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
+
+    if args.test:
+        unittest.main(argv=[''], exit=False)
+        return
+
+    if args.gui:
+        app = QApplication([])
+        window = CardFinderGUI()
+        window.show()
+        app.exec_()
+        return
+
+    bins = [bin.strip() for bin in args.bins.split(",")]
+    finder = CardNumberFinder(args.hash, args.last4, bins, args.middle)
+
+    if args.benchmark:
+        process_counts, times = benchmark(args.hash, args.last4, bins, args.middle)
+        optimal = plot_results(process_counts, times)
+        print(f"Optimal number of processes: {optimal}")
+    else:
+        matching_cards = finder.find_matching_cards(args.processes)
+        if matching_cards:
+            print("\nFound matching cards:")
+            for i, card in enumerate(matching_cards, 1):
+                print(f"{i}. {card[:6]}******{card[-4:]}")
+            finder.save_to_json(matching_cards)
+            print(f"Results saved to {finder.path}")
+        else:
+            print("No matching cards found.")
+
+
+if __name__ == "__main__":
+    main()
