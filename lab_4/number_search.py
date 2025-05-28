@@ -7,6 +7,7 @@ import constants
 from tqdm import tqdm
 import time
 import matplotlib.pyplot as plt
+import unittest
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QWidget,
                             QPushButton, QLabel, QLineEdit, QTextEdit, QProgressBar,
                             QSpinBox, QFormLayout, QMessageBox)
@@ -120,3 +121,29 @@ def plot_results(process_counts, times):
     plt.show()
 
     return optimal_processes
+
+class TestCardNumberFinder(unittest.TestCase):
+    def setUp(self):
+        self.finder = CardNumberFinder(
+            hash_value="a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0",
+            last_four="1234",
+            bins=["123456"],
+            middle_len=2
+        )
+
+    def test_luhn_check(self):
+        self.assertTrue(CardNumberFinder.luhn_check("4111111111111111"))
+        self.assertFalse(CardNumberFinder.luhn_check("4111111111111112"))
+
+    def test_check_hash(self):
+        test_card = "123456001234"
+        test_hash = hashlib.sha3_224(test_card.encode()).hexdigest()
+        finder = CardNumberFinder(hash_value=test_hash, last_four="1234", bins=["123456"], middle_len=2)
+        self.assertTrue(finder.check_hash(test_card))
+
+    def test_generate_and_check_cards(self):
+        test_card = "123456001234"
+        test_hash = hashlib.sha3_224(test_card.encode()).hexdigest()
+        finder = CardNumberFinder(hash_value=test_hash, last_four="1234", bins=["123456"], middle_len=2)
+        results = finder.generate_and_check_cards("123456")
+        self.assertIn(test_card, results)
