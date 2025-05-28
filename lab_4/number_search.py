@@ -147,3 +147,123 @@ class TestCardNumberFinder(unittest.TestCase):
         finder = CardNumberFinder(hash_value=test_hash, last_four="1234", bins=["123456"], middle_len=2)
         results = finder.generate_and_check_cards("123456")
         self.assertIn(test_card, results)
+
+
+class WorkerThread(QThread):
+    finished = pyqtSignal(list)
+    progress = pyqtSignal(int)
+    message = pyqtSignal(str)
+
+    def __init__(self, finder: CardNumberFinder, num_processes: int):
+        super().__init__()
+        self.finder = finder
+        self.num_processes = num_processes
+
+    def run(self):
+        self.message.emit("Starting search...")
+        matching_cards = self.finder.find_matching_cards(self.num_processes)
+        self.finished.emit(matching_cards if matching_cards else [])
+
+
+class CardFinderGUI(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Card Number Finder")
+        self.setGeometry(100, 100, 600, 500)
+
+        self.central_widget = QWidget()
+        self.setCentralWidget(self.central_widget)
+
+        self.layout = QVBoxLayout()
+
+        # Input fields
+        self.form_layout = QFormLayout()
+
+        self.hash_input = QLineEdit(constants.HASH_VALUE)
+        self.last_four_input = QLineEdit(constants.LAST_4_CHARACTERS_CARD)
+        self.bins_input = QLineEdit(",".join(constants.ALFABANK_VISA_DEBIT_BINS))
+        self.middle_len_input = QSpinBox()
+        self.middle_len_input.setValue(constants.MIDDLE_LENGTH)
+        self.middle_len_input.setRange(1, 10)
+        self.processes_input = QSpinBox()
+        self.processes_input.setValue(multiprocessing.cpu_count())
+        self.processes_input.setRange(1, multiprocessing.cpu_count() * 2)
+
+        self.form_layout.addRow("Target Hash:", self.hash_input)
+        self.form_layout.addRow("Last 4 Digits:", self.last_four_input)
+        self.form_layout.addRow("BINs (comma separated):", self.bins_input)
+        self.form_layout.addRow("Middle Length:", self.middle_len_input)
+        self.form_layout.addRow("Processes:", self.processes_input)
+
+        # Buttons
+        self.start_btn = QPushButton("Start Search")
+        self.start_btn.clicked.connect(self.start_search)
+
+        self.benchmark_btn = QPushButton("Run Benchmark")
+        self.benchmark_btn.clicked.connect(self.run_benchmark)
+
+        # Output
+        self.output_area = QTextEdit()
+        self.output_area.setReadOnly(True)
+
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setRange(0, 100)
+
+        self.layout.addLayout(self.form_layout)
+        self.layout.addWidget(self.start_btn)
+        self.layout.addWidget(self.benchmark_btn)
+        self.layout.addWidget(self.progress_bar)
+        self.layout.addWidget(self.output_area)
+
+        self.central_widget.setLayout(self.layout)
+
+        self.worker = None
+
+    def start_search(self):
+        if self.worker and self.worker.isRunning():
+            QMessageBox.warning(self, "Warning", "A search is already in progress!")
+            return
+
+        bins = [bin.strip() for bin in self.bins_input.text().split(",")]
+        finder = CardNumberFinder(
+            hash_value=self.hash_input.text(),
+            last_four=self.last_four_input.text(),
+            bins=bins,
+            middle_len=self.middle_len_input.value(),
+            path="found_cards.json"
+        )
+
+        self.worker = WorkerThread(finder, self.processes_input.value())
+        self.worker.finished.connect(self.on_search_finished)
+        self.worker.message.connect(self.output_area.append)
+        self.worker.start()
+
+        self.start_btn.setEnabled(False)
+        self.progress_bar.setValue(0)
+
+    def run_benchmark(self):
+        bins = [bin.strip() for bin in self.bins_input.text().split(",")]
+        self.output_area.append("Running benchmark...")
+
+        QApplication.processEvents()  # Update UI
+
+        process_counts, times = benchmark(
+            self.hash_input.text(),
+            self.last_four_input.text(),
+            bins,
+            self.middle_len_input.value()
+        )
+
+        optimal = plot_results(process_counts, times)
+        self.output_area.append(f"Optimal number of processes: {optimal}")
+        self.processes_input.setValue(optimal)
+
+    def on_search_finished(self, results):
+        self.start_btn.setEnabled(True)
+        if results:
+            self.output_area.append("\nFound matching cards:")
+            for card in results:
+                self.output_area.append(f"{card[:6]}******{card[-4:]}")
+        else:
+            self.output_area.append("\nNo matching cards found.")
+        self.progress_bar.setValue(100)
