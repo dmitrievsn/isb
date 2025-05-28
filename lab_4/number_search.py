@@ -24,7 +24,7 @@ class CardNumberFinder:
         return matching
 
     def check_hash(self, card_number: str) -> bool:
-        hashed = hashlib.sha224(card_number.encode()).hexdigest()
+        hashed = hashlib.sha3_224(card_number.encode()).hexdigest()
         return hashed == self.hash_value
 
     def find_matching_cards(self) -> Optional[List[str]]:
