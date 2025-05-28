@@ -23,6 +23,17 @@ class CardNumberFinder:
                 matching.append(card)
         return matching
 
+    def luhn_check(self, card_number: str) -> bool:
+        total = 0
+        for i, digit in enumerate(reversed(card_number)):
+            num = int(digit)
+            if i % 2 == 1:
+                num *= 2
+                if num > 9:
+                    num = (num // 10) + (num % 10)
+            total += num
+        return total % 10 == 0
+
     def check_hash(self, card_number: str) -> bool:
         hashed = hashlib.sha3_224(card_number.encode()).hexdigest()
         return hashed == self.hash_value
